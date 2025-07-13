@@ -108,7 +108,7 @@ namespace DungeonDepths.Core
 
 			Console.Clear();
 
-			Entity player = CreatePlayer(characterPick, bonusStrPoints, bonusIntPoints, bonusAgiPoints);
+			Entity player = Creator.CreatePlayer(characterPick, bonusStrPoints, bonusIntPoints, bonusAgiPoints);
 
 			//Save character in DB
 			Character character = CreateCharacterModel(player);
@@ -119,12 +119,12 @@ namespace DungeonDepths.Core
 			//In game screen
 			while (screen == Screen.InGame)
 			{
-				enemies.Add(CreateEnemy(player));
+				enemies.Add(Creator.CreateEnemy(player));
 				Console.WriteLine($"Health: {player.Health}   Mana: {player.Mana}");
 				Console.WriteLine();
 
-				char[,] field = CreateField(player, enemies);
-				PrintField(field);
+				char[,] field = Creator.CreateField(player, enemies);
+				Creator.PrintField(field);
 
 				Console.WriteLine("Choose action");
 				Console.WriteLine("1) Attack");
@@ -203,50 +203,7 @@ namespace DungeonDepths.Core
 		}
 
 		//Private methods
-		private Entity CreatePlayer(int characterPick, int bonusStr, int bonusInt, int bonusAgi)
-		{
-			if (characterPick == 1)
-			{
-				return new Warrior(bonusStr, bonusInt, bonusAgi, 1, 1);
-			}
-			else if (characterPick == 2)
-			{
-				return new Archer(bonusStr, bonusInt, bonusAgi, 1, 1);
-			}
-			else
-			{
-				return new Mage(bonusStr, bonusInt, bonusAgi, 1, 1);
-			}
-		}
-
-		private Enemy CreateEnemy(Entity player)
-		{
-			int[] enemyPosition = EnemySpawnPosition(player.Position[0], player.Position[1]);
-			Random random = new();
-
-			return new Enemy(random.Next(1, 4),
-				random.Next(1, 4),
-				random.Next(1, 4),
-				1,
-				enemyPosition[0],
-				enemyPosition[1]);
-		}
-
-		private int[] EnemySpawnPosition(int playerPositionX, int playerPositionY)
-		{
-			Random random = new();
-			int positionX = random.Next(10);
-			int positionY = random.Next(10);
-
-			if (positionX == playerPositionX && positionY == playerPositionY)
-			{
-				return EnemySpawnPosition(playerPositionX, playerPositionY);
-			}
-			else
-			{
-				return new int[] { positionX, positionY };
-			}
-		}
+		
 
 		private Character CreateCharacterModel(Entity entity)
 		{
@@ -287,42 +244,6 @@ namespace DungeonDepths.Core
 			};
 		}
 
-		private char[,] CreateField(Entity player, List<Entity> enemies)
-		{
-			char[,] field = new char[10, 10];
-
-			for (int i = 0; i < 10; i++)
-			{
-				for (int j = 0; j < 10; j++)
-				{
-					if (i == player.Position[0] && j == player.Position[1])
-					{
-						field[i, j] = player.EnitySymbol;
-					}
-					else if (enemies.Any(e => e.Position[0] == i && e.Position[1] == j))
-					{
-						field[i, j] = enemies.First().EnitySymbol;
-					}
-					else
-					{
-						field[i, j] = '▒';
-					}
-				}
-			}
-
-			return field;
-		}
-
-		private void PrintField(char[,] field)
-		{
-			for (int i = 0; i < 10; i++)
-			{
-				for (int j = 0; j < 10; j++)
-				{
-					Console.Write(field[i, j]);
-				}
-				Console.WriteLine();
-			}
-		}
+		
 	}
 }
