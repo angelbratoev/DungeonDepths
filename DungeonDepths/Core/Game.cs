@@ -52,7 +52,7 @@ namespace DungeonDepths.Core
 
 				characterPick = Validator.ValidateCharacter(Console.ReadLine());
 
-				Console.WriteLine("Would you like to buff up your stats before starting?");
+				Console.WriteLine("Would you like to buff up your stats before starting?         (Limit: 3 points total)");
 				Console.Write("Response (Y/N): ");
 
 				char response = Validator.ValidateResponse(Console.ReadLine());
