@@ -22,6 +22,6 @@ namespace DungeonDepths.Contracts
 		protected void Setup();
 		public void Attack(Entity target);
 		public void Move(char direction);
-		public List<Entity> ValidTargets(List<Entity> entities);
+		public List<Entity> GetValidTargets(List<Entity> targets);
 	}
 }

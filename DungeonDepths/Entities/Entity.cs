@@ -85,7 +85,7 @@ namespace DungeonDepths.Entities
 			}
 		}
 
-		public List<Entity> ValidTargets(List<Entity> targets)
+		public List<Entity> GetValidTargets(List<Entity> targets)
 		{
 			List<Entity> validTargets = new();
 

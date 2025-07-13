@@ -4,6 +4,7 @@ using DungeonDepths.Entities;
 using DungeonDepths.Enums;
 using DungeonDepths.Models;
 using DungeonDepths.Services;
+using DungeonDepths.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -36,6 +37,7 @@ namespace DungeonDepths.Core
 
 		public async Task Play()
 		{
+			//Main menu screen
 			while (screen == Screen.MainMenu)
 			{
 				Console.WriteLine("Welcome!");
@@ -46,6 +48,7 @@ namespace DungeonDepths.Core
 				screen = Screen.CharacterSelect;
 			}
 
+			//Character select screen
 			while (screen == Screen.CharacterSelect)
 			{
 				Console.WriteLine("Choose character type:");
@@ -55,21 +58,22 @@ namespace DungeonDepths.Core
 				Console.WriteLine("3) Mage");
 				Console.Write("Your pick: ");
 
-				characterPick = ValidateCharacter(Console.ReadLine());
+				characterPick = Validator.ValidateCharacter(Console.ReadLine());
 
 				Console.WriteLine("Would you like to buff up your stats before starting?");
 				Console.Write("Response (Y/N): ");
 
-				char response = ValidateResponse(Console.ReadLine());
+				char response = Validator.ValidateResponse(Console.ReadLine());
 
 				int remainingStatPoints = 3;
 
-				if (response == 'Y' || response == 'y')
+				//Bonus stat allocation
+				if (response == 'y')
 				{
 					Console.WriteLine($"Remaining Points: {remainingStatPoints}");
 					Console.Write("Add to Strenght: ");
 
-					int statToAdd = ValidateStatPoints(Console.ReadLine(), remainingStatPoints);
+					int statToAdd = Validator.ValidateStatPoints(Console.ReadLine(), remainingStatPoints);
 					bonusStrPoints += statToAdd;
 					remainingStatPoints -= statToAdd;
 
@@ -82,7 +86,7 @@ namespace DungeonDepths.Core
 					Console.WriteLine($"Remaining Points: {remainingStatPoints}");
 					Console.Write("Add to Intelligence: ");
 
-					statToAdd = ValidateStatPoints(Console.ReadLine(), remainingStatPoints);
+					statToAdd = Validator.ValidateStatPoints(Console.ReadLine(), remainingStatPoints);
 					bonusIntPoints += statToAdd;
 					remainingStatPoints -= statToAdd;
 
@@ -95,26 +99,24 @@ namespace DungeonDepths.Core
 					Console.WriteLine($"Remaining Points: {remainingStatPoints}");
 					Console.Write("Add to Agility: ");
 
-					statToAdd = ValidateStatPoints(Console.ReadLine(), remainingStatPoints);
+					statToAdd = Validator.ValidateStatPoints(Console.ReadLine(), remainingStatPoints);
 					bonusAgiPoints += statToAdd;
+				}
 
-					screen = Screen.InGame;
-				}
-				else
-				{
-					screen = Screen.InGame;
-				}
+				screen = Screen.InGame;
 			}
 
 			Console.Clear();
 
 			Entity player = CreatePlayer(characterPick, bonusStrPoints, bonusIntPoints, bonusAgiPoints);
 
+			//Save character in DB
 			Character character = CreateCharacterModel(player);
 			characterCreationDate = character.TimeOfCreating;
 			await characterRepository.SaveAsync(character);
 			Console.Clear();
 
+			//In game screen
 			while (screen == Screen.InGame)
 			{
 				enemies.Add(CreateEnemy(player));
@@ -123,15 +125,16 @@ namespace DungeonDepths.Core
 
 				char[,] field = CreateField(player, enemies);
 				PrintField(field);
+
 				Console.WriteLine("Choose action");
 				Console.WriteLine("1) Attack");
 				Console.WriteLine("2) Move");
 
-				int action = ValidateAction(Console.ReadLine());
+				int action = Validator.ValidateAction(Console.ReadLine());
 
-				if (action == 1)
+				if (action == 1) //Player combat
 				{
-					List<Entity> targets = player.ValidTargets(enemies);
+					List<Entity> targets = player.GetValidTargets(enemies);
 
 					if (targets.Count > 0)
 					{
@@ -141,7 +144,7 @@ namespace DungeonDepths.Core
 						}
 
 						Console.Write("Which one to attack: ");
-						int targetIndex = ValidateTarget(targets.Count, Console.ReadLine());
+						int targetIndex = Validator.ValidateTargetIndex(targets.Count, Console.ReadLine());
 						Entity enemyTarget = targets[targetIndex];
 						player.Attack(enemyTarget);
 
@@ -151,25 +154,26 @@ namespace DungeonDepths.Core
 							enemies.Remove(enemyTarget);
 						}
 					}
-					else
+					else //Make the player move in case of no valid targets
 					{
 						Console.WriteLine("No available targets in your range! Please select which direction you want to move.");
-						char direction = ValidateDirectionInput(player, Console.ReadLine(), field);
+						char direction = Validator.ValidateDirectionInput(player, Console.ReadLine(), field);
 						player.Move(direction);
 					}
 				}
-				else if (action == 2)
+				else if (action == 2) //Player ovement
 				{
-					char direction = ValidateDirectionInput(player, Console.ReadLine(), field);
+					char direction = Validator.ValidateDirectionInput(player, Console.ReadLine(), field);
 					player.Move(direction);
 				}
 
+				//Enemy turn
 				foreach (Enemy enemy in enemies)
 				{
 					List<Entity> targets = new();
 					targets.Add(player);
 
-					if (enemy.ValidTargets(targets).Count > 0)
+					if (enemy.GetValidTargets(targets).Count > 0)
 					{
 						enemy.Attack(player);
 
@@ -185,6 +189,7 @@ namespace DungeonDepths.Core
 				}
 			}
 
+			//Exit screen
 			if (screen == Screen.Exit)
 			{
 				int characterId = await characterRepository.GetIdByDateAsync(characterCreationDate);
@@ -197,125 +202,7 @@ namespace DungeonDepths.Core
 			}
 		}
 
-		private int ValidateCharacter(string character)
-		{
-			if (int.TryParse(character, out int characterPick) && characterPick >= 1 && characterPick <= 3)
-			{
-				return characterPick;
-			}
-			else
-			{
-				Console.WriteLine("Invalid command! Please enter 1 for Warrior, 2 for Archer or 3 for Mage.");
-				string input = Console.ReadLine();
-
-				return ValidateCharacter(input);
-			}
-		}
-
-		private char ValidateResponse(string input)
-		{
-			if (char.TryParse(input, out char response) && (response == 'Y' || response == 'y' || response == 'N' || response == 'n'))
-			{
-				return response;
-			}
-			else
-			{
-				Console.WriteLine("Invalid command! Please answer with Y or N");
-				return ValidateResponse(Console.ReadLine());
-			}
-		}
-
-		private int ValidateStatPoints(string input, int remainingStatPoints)
-		{
-			if (int.TryParse(input, out int statsToAdd) && statsToAdd >= 0 && statsToAdd <= remainingStatPoints)
-			{
-				return statsToAdd;
-			}
-			else
-			{
-				Console.WriteLine($"Invalid input! Please enter a number between 0 and {remainingStatPoints}");
-				return ValidateStatPoints(Console.ReadLine(), remainingStatPoints);
-			}
-		}
-
-		private int ValidateAction(string input)
-		{
-			if (int.TryParse(input, out int action) && action >= 1 && action <= 2)
-			{
-				return action;
-			}
-			else
-			{
-				Console.WriteLine("Invalid input! Please select 1 to Attack or 2 to Move");
-				return ValidateAction(Console.ReadLine());
-			}
-		}
-
-		private char ValidateDirectionInput(Entity player, string input, char[,] field)
-		{
-			if (char.TryParse(input.ToLower(), out char direction) &&
-				(direction == 'q' || direction == 'w' || direction == 'e'
-				|| direction == 'a' || direction == 's' || direction == 'd'
-				|| direction == 'z' || direction == 'x'))
-			{
-				if ((direction == 'w' && player.Position[0] - 1 < 0)
-					|| (direction == 's' && player.Position[0] + 1 > 9)
-					|| (direction == 'a' && player.Position[1] - 1 < 0)
-					|| (direction == 'd' && player.Position[1] + 1 > 9)
-					|| (direction == 'q' && (player.Position[0] - 1 < 0 || player.Position[1] - 1 < 0))
-					|| (direction == 'e' && (player.Position[0] - 1 < 0 || player.Position[1] + 1 > 9))
-					|| (direction == 'z' && (player.Position[0] + 1 > 9 || player.Position[1] - 1 < 0))
-					|| (direction == 'x' && (player.Position[0] + 1 > 9 || player.Position[1] + 1 > 9)))
-				{
-					Console.WriteLine("Out of bounds! Please select a different direction");
-					return ValidateDirectionInput(player, Console.ReadLine(), field);
-				}
-				else if (direction == 'w' && field[player.Position[0] -1, player.Position[1]] != '▒'
-						|| direction == 's' && field[player.Position[0] + 1, player.Position[1]] != '▒'
-						|| direction == 'a' && field[player.Position[0], player.Position[1] - 1] != '▒'
-						|| direction == 'd' && field[player.Position[0], player.Position[1] + 1] != '▒'
-						|| direction == 'q' && field[player.Position[0] - 1, player.Position[1] - 1] != '▒'
-						|| direction == 'e' && field[player.Position[0] - 1, player.Position[1] + 1] != '▒'
-						|| direction == 'z' && field[player.Position[0] + 1, player.Position[1] - 1] != '▒'
-						|| direction == 'x' && field[player.Position[0] + 1, player.Position[1] + 1] != '▒')
-				{
-					Console.WriteLine("Tile already ocupied! Please select a different direction.");
-					return ValidateDirectionInput(player, Console.ReadLine(), field);
-				}
-				else
-				{
-					return direction;
-				}
-			}
-			else
-			{
-				Console.WriteLine("Invalid input! Please enter a valid direction:");
-				Console.WriteLine("W - Move up");
-				Console.WriteLine("S - Move down");
-				Console.WriteLine("D - Move right");
-				Console.WriteLine("А - Move left");
-				Console.WriteLine("Е - Move diagonally up & right");
-				Console.WriteLine("X - Move diagonally down & right");
-				Console.WriteLine("Q - Move diagonally up & left");
-				Console.WriteLine("Z - Move diagonally down & left");
-				return ValidateDirectionInput(player, Console.ReadLine(), field);
-			}
-
-		}
-
-		private int ValidateTarget(int targetsAmount, string input)
-		{
-			if (int.TryParse(input, out int targetIndex) && targetIndex >= 0 && targetIndex <= targetsAmount - 1)
-			{
-				return targetIndex;
-			}
-			else
-			{
-				Console.WriteLine("Invalid input! Please enter a valid target index.");
-				return ValidateTarget(targetsAmount, Console.ReadLine());
-			}
-		}
-
+		//Private methods
 		private Entity CreatePlayer(int characterPick, int bonusStr, int bonusInt, int bonusAgi)
 		{
 			if (characterPick == 1)
@@ -393,8 +280,6 @@ namespace DungeonDepths.Core
 
 		private Session CreateSessionModel(int characterId)
 		{
-
-
 			return new Session()
 			{
 				PlayerId = characterId,
