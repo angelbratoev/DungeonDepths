@@ -37,6 +37,4 @@ Console.OutputEncoding = System.Text.Encoding.UTF8;
 
 Game game = host.Services.GetRequiredService<Game>();
 
-
-
 await game.PlayAsync();

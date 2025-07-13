@@ -19,13 +19,7 @@ namespace DungeonDepths.Core
 		private readonly ICharacterService characterService;
 		private readonly ISessionService sessionService;
 		private Screen screen;
-		private int bonusStrPoints = 0;
-		private int bonusIntPoints = 0;
-		private int bonusAgiPoints = 0;
-		private int characterPick;
 		private List<Entity> enemies;
-		private int playerKillCount = 0;
-		private DateTime characterCreationDate;
 
 		public Game(ICharacterService _characterService, ISessionService _sessionService)
 		{
@@ -49,6 +43,12 @@ namespace DungeonDepths.Core
 			}
 
 			//Character select screen
+
+			int bonusStrPoints = 0,
+				bonusIntPoints = 0,
+				bonusAgiPoints = 0,
+				characterPick = 0;
+
 			while (screen == Screen.CharacterSelect)
 			{
 				Console.WriteLine("Choose character type:");
@@ -112,10 +112,13 @@ namespace DungeonDepths.Core
 
 			//Save character in DB
 			Character character = await characterService.CreateCharacterAsync(player, characterPick);
-			characterCreationDate = character.TimeOfCreating;
-			
+			DateTime characterCreationDate = character.TimeOfCreating;
+
 
 			//In game screen
+
+			int playerKillCount = 0;
+
 			while (screen == Screen.InGame)
 			{
 				Console.Clear();
