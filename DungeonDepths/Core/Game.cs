@@ -6,6 +6,9 @@ using DungeonDepths.Utils;
 
 namespace DungeonDepths.Core
 {
+	/// <summary>
+	/// Core business logic layer
+	/// </summary>
 	public class Game
 	{
 		private readonly ICharacterService characterService;

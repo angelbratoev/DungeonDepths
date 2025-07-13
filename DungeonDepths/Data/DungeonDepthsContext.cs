@@ -3,6 +3,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DungeonDepths.Data
 {
+	/// <summary>
+	/// The game's database context
+	/// </summary>
 	public class DungeonDepthsContext : DbContext
 	{
 		public DungeonDepthsContext(DbContextOptions<DungeonDepthsContext> options)

@@ -3,6 +3,9 @@ using DungeonDepths.Models;
 
 namespace DungeonDepths.Services
 {
+	/// <summary>
+	/// Service layer that connects the business logic with the database lyaer for Session
+	/// </summary>
 	public class SessionService : ISessionService
 	{
 		private readonly ISessionRepository sessionRepository;

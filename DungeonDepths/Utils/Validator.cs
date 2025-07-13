@@ -2,6 +2,9 @@
 
 namespace DungeonDepths.Utils
 {
+	/// <summary>
+	/// Static class that does the user input validations
+	/// </summary>
 	public static class Validator
 	{
 		public static int ValidateCharacter(string character)

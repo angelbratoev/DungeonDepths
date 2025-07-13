@@ -2,6 +2,9 @@
 
 namespace DungeonDepths.Contracts
 {
+	/// <summary>
+	/// Interface for all active game pieces
+	/// </summary>
 	public interface IEntity
 	{
 		public int Strenght { get; set; }

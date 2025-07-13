@@ -4,6 +4,9 @@ using DungeonDepths.Models;
 
 namespace DungeonDepths.Services
 {
+	/// <summary>
+	/// Repository that saves the game session information to the database
+	/// </summary>
 	public class SessionRepository : ISessionRepository
 	{
 		private readonly DungeonDepthsContext context;

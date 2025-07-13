@@ -10,9 +10,9 @@ using Microsoft.Extensions.Hosting;
 using IHost host = Host.CreateDefaultBuilder(args)
 	.ConfigureAppConfiguration((context, config) =>
 	{
-		config.AddUserSecrets<Program>();
+		config.AddUserSecrets<Program>(); //Add user secrets for the connection string
 	})
-	.ConfigureServices((context, services) =>
+	.ConfigureServices((context, services) => //Add services to the container
 			{
 				var configuration = context.Configuration;
 
@@ -31,6 +31,7 @@ using IHost host = Host.CreateDefaultBuilder(args)
 			})
 			.Build();
 
+//Setting the encoding to UTF8 in order do display ◙
 Console.OutputEncoding = System.Text.Encoding.UTF8;
 
 Game game = host.Services.GetRequiredService<Game>();

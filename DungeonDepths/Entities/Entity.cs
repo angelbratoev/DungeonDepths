@@ -2,6 +2,9 @@
 
 namespace DungeonDepths.Entities
 {
+	/// <summary>
+	/// Abstract class for all active game pieces
+	/// </summary>
 	abstract public class Entity : IEntity
 	{
 		protected Entity(int strenght, int intelligence, int agility, int range, int positionX, int positionY)

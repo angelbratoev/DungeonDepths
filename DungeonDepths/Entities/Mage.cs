@@ -1,5 +1,8 @@
 ﻿namespace DungeonDepths.Entities
 {
+	/// <summary>
+	/// Mage class
+	/// </summary>
 	public class Mage : Entity
 	{
 		private const int strenght = 2;

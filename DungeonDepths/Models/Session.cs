@@ -3,6 +3,9 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DungeonDepths.Models
 {
+	/// <summary>
+	/// Entuty framework model for game session
+	/// </summary>
 	public class Session
 	{
 		[Key]

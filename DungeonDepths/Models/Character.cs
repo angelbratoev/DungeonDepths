@@ -2,6 +2,9 @@
 
 namespace DungeonDepths.Models
 {
+	/// <summary>
+	/// Entuty framework model for Character
+	/// </summary>
 	public class Character
 	{
 		[Key]

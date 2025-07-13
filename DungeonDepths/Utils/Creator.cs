@@ -2,6 +2,9 @@
 
 namespace DungeonDepths.Utils
 {
+	/// <summary>
+	/// Static class that creates the game objects like player character, enemies, game board
+	/// </summary>
 	public static class Creator
 	{
 		public static Entity CreatePlayer(int characterPick, int bonusStr, int bonusInt, int bonusAgi)

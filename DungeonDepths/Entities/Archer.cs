@@ -1,5 +1,8 @@
 ﻿namespace DungeonDepths.Entities
 {
+	/// <summary>
+	/// Archer class
+	/// </summary>
 	public class Archer : Entity
 	{
 		private const int strenght = 2;

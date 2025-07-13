@@ -1,5 +1,8 @@
 ﻿namespace DungeonDepths.Entities
 {
+	/// <summary>
+	/// Warrior class
+	/// </summary>
 	public class Warrior : Entity
 	{
 		private const int strenght = 3;

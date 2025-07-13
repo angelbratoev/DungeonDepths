@@ -5,6 +5,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DungeonDepths.Services
 {
+	/// <summary>
+	/// Repository that saves the Character information to the database
+	/// </summary>
 	public class CharacterRepository : ICharacterRepository
 	{
 		private readonly DungeonDepthsContext context;

@@ -4,6 +4,9 @@ using DungeonDepths.Models;
 
 namespace DungeonDepths.Services
 {
+	/// <summary>
+	/// Service layer that connects the business logic with the database lyaer for Character
+	/// </summary>
 	public class CharacterService : ICharacterService
 	{
 		private readonly ICharacterRepository characterRepository;
