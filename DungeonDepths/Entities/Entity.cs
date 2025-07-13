@@ -91,8 +91,10 @@ namespace DungeonDepths.Entities
 
 			foreach (Entity target in targets)
 			{
-				if (target.Position[0] >= Position[0] - Range && target.Position[0] <= Position[0] + Range
-					&& target.Position[1] >= Position[1] - Range && target.Position[1] <= Position[1] + Range)
+				int differenceX = Math.Abs(Position[0] - target.Position[0]);
+				int differenceY = Math.Abs(Position[1] - target.Position[1]);
+
+				if (Math.Max(differenceX, differenceY) <= Range)
 				{
 					validTargets.Add(target);
 				}

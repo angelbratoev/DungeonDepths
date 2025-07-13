@@ -113,11 +113,12 @@ namespace DungeonDepths.Core
 			//Save character in DB
 			Character character = await characterService.CreateCharacterAsync(player, characterPick);
 			characterCreationDate = character.TimeOfCreating;
-			Console.Clear();
+			
 
 			//In game screen
 			while (screen == Screen.InGame)
 			{
+				Console.Clear();
 				enemies.Add(Creator.CreateEnemy(player));
 				Console.WriteLine($"Health: {player.Health}   Mana: {player.Mana}");
 				Console.WriteLine();
