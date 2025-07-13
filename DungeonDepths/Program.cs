@@ -25,6 +25,10 @@ using IHost host = Host.CreateDefaultBuilder(args)
 
 				services.AddScoped<ICharacterRepository, CharacterRepository>();
 				services.AddScoped<ISessionRepository, SessionRepository>();
+
+				services.AddScoped<ICharacterService, CharacterService>();
+				services.AddScoped<ISessionService, SessionService>();
+
 				services.AddScoped<Game>();
 			})
 			.Build();
@@ -35,4 +39,4 @@ Game game = host.Services.GetRequiredService<Game>();
 
 
 
-await game.Play();
+await game.PlayAsync();

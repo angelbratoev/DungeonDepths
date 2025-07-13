@@ -16,8 +16,8 @@ namespace DungeonDepths.Core
 {
 	public class Game
 	{
-		private readonly ICharacterRepository characterRepository;
-		private readonly ISessionRepository sessionRepository;
+		private readonly ICharacterService characterService;
+		private readonly ISessionService sessionService;
 		private Screen screen;
 		private int bonusStrPoints = 0;
 		private int bonusIntPoints = 0;
@@ -27,15 +27,15 @@ namespace DungeonDepths.Core
 		private int playerKillCount = 0;
 		private DateTime characterCreationDate;
 
-		public Game(ICharacterRepository _characterRepository, ISessionRepository _sessionRepository)
+		public Game(ICharacterService _characterService, ISessionService _sessionService)
 		{
-			characterRepository = _characterRepository;
-			sessionRepository = _sessionRepository;
+			characterService = _characterService;
+			sessionService = _sessionService;
 			screen = Screen.MainMenu;
 			enemies = new List<Entity>();
 		}
 
-		public async Task Play()
+		public async Task PlayAsync()
 		{
 			//Main menu screen
 			while (screen == Screen.MainMenu)
@@ -111,9 +111,8 @@ namespace DungeonDepths.Core
 			Entity player = Creator.CreatePlayer(characterPick, bonusStrPoints, bonusIntPoints, bonusAgiPoints);
 
 			//Save character in DB
-			Character character = CreateCharacterModel(player);
+			Character character = await characterService.CreateCharacterAsync(player, characterPick);
 			characterCreationDate = character.TimeOfCreating;
-			await characterRepository.SaveAsync(character);
 			Console.Clear();
 
 			//In game screen
@@ -192,58 +191,13 @@ namespace DungeonDepths.Core
 			//Exit screen
 			if (screen == Screen.Exit)
 			{
-				int characterId = await characterRepository.GetIdByDateAsync(characterCreationDate);
-				Session session = CreateSessionModel(characterId);
-				await sessionRepository.SaveAsync(session);
+				int characterId = await characterService.GetCharacterIdByDateAsync(characterCreationDate);
+				await sessionService.CreateSessionAsync(characterId, playerKillCount);
 
 				Console.Clear();
 				Console.WriteLine("Game over!");
 				Console.WriteLine($"Your final score is {playerKillCount} defeated monsters!");
 			}
-		}
-
-		//Private methods
-		
-
-		private Character CreateCharacterModel(Entity entity)
-		{
-			string className = string.Empty;
-			if (characterPick == 1)
-			{
-				className = "Warrior";
-			}
-			else if (characterPick == 2)
-			{
-				className = "Archer";
-			}
-			else
-			{
-				className = "Mage";
-			}
-
-			return new Character()
-			{
-				ClassName = className,
-				Strenght = entity.Strenght,
-				Intelligence = entity.Intelligence,
-				Agillity = entity.Agility,
-				Health = entity.Health,
-				Mana = entity.Mana,
-				Damage = entity.Damage,
-				Range = entity.Range,
-				TimeOfCreating = DateTime.Now
-			};
-		}
-
-		private Session CreateSessionModel(int characterId)
-		{
-			return new Session()
-			{
-				PlayerId = characterId,
-				MonstersKilled = playerKillCount
-			};
-		}
-
-		
+		}		
 	}
 }
